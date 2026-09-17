@@ -28,6 +28,11 @@ Przed zbudowaniem nowego obrazu Docker agent ma obowiązek wpisać nową wersję
   - **Wersjonowanie:** Homepage startuje od `v0.1.0` jako nowy, niezależny projekt — nie kontynuuje numeracji `0.4.x` po `myhome`, mimo wspólnego pochodzenia kodu.
 - **Status:** 🟡 Kod gotowy, obraz jeszcze nie zbudowany ani nie wypchnięty do rejestru Gitea. Repozytorium `IF-startpage` na Gitea — w trakcie zakładania.
 
+### 🏷️ [v0.1.1] — 2026-09-17 (Likwidacja Beszela)
+- **Modul:** Ogolny
+- **Opis zmian:** Calkowicie usuniety martwy/nieuzywany kod zwiazany z Beszelem (statystyki serwera NAS): `www-helper/config/beszel.env` i `beszel.env.example` (server.js nigdy nie odczytywal tych zmiennych - orphaned config z prawdziwym haslem), kafelek "Beszel" z `services.json`, ikony `beszel.png`/`beszel-light.png`, wzmianka w opisie zakresu portow w `www/app.js`. Wykonane analogicznie w `IF-MyHome` (dawniej `myhome`), zeby uniknac rozjazdu.
+- **Autor / Commit:** Claude (Cowork), 2026-09-17, na wyrazne polecenie uzytkownika.
+
 ### 🏷️ [rebranding] — 2026-09-17 (Nazwa projektu ustalona: IF-startpage)
 - **Modul:** Ogolny
 - **Opis zmian:** Robocza nazwa „Homepage” zmieniona na **IF-startpage**. Uzytkownik zastrzegl, ze "Homepage" to nazwa znanego, istniejacego projektu open source (gethomepage.dev) w tej samej niszy startpage/dashboard (obok Homarr, Heimdall, Dashy, Homer, Flame), wiec utrzymanie tej nazwy dla publicznego repo grozilo zarzutem podszywania sie pod cudza marke/zasiegi. Nowa nazwa nawiazuje do marki IdeaForge, pod ktora repo ma trafic na GitHub. Zaktualizowano compose.yaml (tag obrazu, container_name, sciezki wolumenow), obrazy.md, ten plik oraz www/README.md.

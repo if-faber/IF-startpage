@@ -85,7 +85,7 @@ const PORT_HINTS = {
   administracja: { label: "Administracja & Narzędzia", range: "5000-5099", typicalPorts: [5000, 5001, 5090], description: "Gitea Registry, Dockge, Cockpit" },
   monitoring: { label: "Monitoring & ESP", range: "6000-6099", typicalPorts: [6052, 6090, 6100], description: "ESPHome, telemetria, sensory" },
   ha_iot: { label: "Smart Home & IoT", range: "7000-7099", typicalPorts: [7000, 7123, 8123], description: "Home Assistant, MQTT, automatyzacje" },
-  ai_testy: { label: "Dokumentacja & Usługi", range: "8000-8099", typicalPorts: [8000, 8010, 8080, 8085, 8090], description: "DokuWiki, Paperless, Memos, Stirling, Beszel" }
+  ai_testy: { label: "Dokumentacja & Usługi", range: "8000-8099", typicalPorts: [8000, 8010, 8080, 8085, 8090], description: "DokuWiki, Paperless, Memos, Stirling" }
 };
 
 function brandIcon() {

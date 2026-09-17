@@ -220,14 +220,6 @@
               "kind": "link"
             },
             {
-              "id": "id-1782145807334-3433217b35a6d",
-              "name": "Beszel",
-              "description": "Statystyki Serwera NAS",
-              "icon": "beszel.png",
-              "url": "http://192.168.50.243:8090/",
-              "kind": "link"
-            },
-            {
               "id": "id-1782145862339-896f618fefbe9",
               "name": "Dockge",
               "description": "Instalator aplikacji",
