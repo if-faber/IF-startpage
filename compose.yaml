@@ -1,0 +1,19 @@
+services:
+  if-startpage:
+    image: localhost:3000/gravi/if-startpage:v0.1.0
+    container_name: if-startpage
+    restart: unless-stopped
+    ports:
+      - "8091:3010"   # port boczny do testów na iflab — produkcyjny port ustala się osobno przy realnym wdrożeniu
+    environment:
+      - DASHBOARD_PIN=1234
+      - APP_BASE_DIR=/app
+      - CONFIG_DIR=/app/config
+      - WWW_DIR=/app/www
+      - HELPER_DIR=/app/www-helper
+      - BACKUP_DIR=/app/backups
+    volumes:
+      - /home/gravi/docker/app-data/if-startpage/config:/app/config
+      - /home/gravi/docker/app-data/if-startpage/backups:/app/backups
+      - /mnt/data:/mnt/data:ro
+      - /var/run/docker.sock:/var/run/docker.sock

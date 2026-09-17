@@ -1,0 +1,24 @@
+(function() {
+  // Skrypt inicjalizujący dźwięk i syntezę mowy dla Webview Kiosk na Androidzie
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = function() {
+      window.speechSynthesis.getVoices();
+    };
+  }
+
+  var unlockAudio = function() {
+    try {
+      if ('speechSynthesis' in window) {
+        var dummy = new SpeechSynthesisUtterance('');
+        dummy.volume = 0;
+        window.speechSynthesis.speak(dummy);
+      }
+    } catch(e) {}
+    window.removeEventListener('touchstart', unlockAudio);
+    window.removeEventListener('click', unlockAudio);
+  };
+
+  window.addEventListener('touchstart', unlockAudio, { passive: true });
+  window.addEventListener('click', unlockAudio, { passive: true });
+})();

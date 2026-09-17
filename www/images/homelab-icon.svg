@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Homedash icon">
+  <rect width="64" height="64" rx="16" fill="#071014"/>
+  <path d="M15 30 32 16l17 14v19a3 3 0 0 1-3 3H18a3 3 0 0 1-3-3V30Z" fill="none" stroke="#54ffb2" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M24 52V34h16v18" fill="none" stroke="#3390ff" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M24 39h16M24 46h16" stroke="#54ffff" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="18" cy="18" r="3" fill="#54ffb2"/>
+  <circle cx="46" cy="18" r="3" fill="#3390ff"/>
+  <path d="M21 18h22" stroke="#1a75ff" stroke-width="2" stroke-linecap="round"/>
+</svg>

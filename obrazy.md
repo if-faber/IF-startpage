@@ -1,0 +1,28 @@
+# 🐳 Rejestr Obrazów Docker & Gitea — IF-startpage (obrazy.md)
+
+Ten plik rejestruje przygotowane i zbudowane obrazy kontenerów Docker dla projektu **IF-startpage**, przeznaczone do wysyłki (`docker push`) do lokalnego repozytorium / rejestru Gitea na serwerze Fujitsu Q920 (`iflab`, `192.168.50.126`).
+
+IF-startpage (robocza nazwa podczas wydzielania: „Homepage”) to samodzielny projekt wydzielony z `myhome` 2026-09-17 — historia obrazów `myhome` (w tym wspólne pochodzenie kodu) pozostaje w `Projekty/MyHome/obrazy.md`.
+
+---
+
+## 📌 Instrukcja i Format Wpisu w Nagłówku
+
+Przed zbudowaniem nowego obrazu Docker agent weryfikuje ten plik i wpisuje rekord planowanego obrazu na górze listy według poniższego wzorca:
+
+```markdown
+### 📦 Obraz: if-startpage:vX.Y.Z — YYYY-MM-DD
+- **Pełny Tag Gitea:** `localhost:3000/gravi/if-startpage:vX.Y.Z` oraz `localhost:3000/gravi/if-startpage:latest`
+- **Rejestr Docelowy:** Repozytorium Gitea na serwerze Fujitsu Q920 (`http://192.168.50.126:3000/gravi/if-startpage`)
+- **Data i czas budowania:** YYYY-MM-DD HH:MM
+- **Status wysyłki (Push Status):** [ 🟡 Zaplanowany / 🟢 Wysłano na Gitea / 🔴 Błąd ]
+- **Zakres wersji:** Opis modułu włączonego do wydania.
+```
+
+> **Uwaga o adresie rejestru:** rejestr Gitea działa pod `localhost:3000` (ten sam port co web UI Gitea), gdy `docker build`/`docker push` wykonywane jest bezpośrednio na serwerze `iflab`. Historyczny adres `127.0.0.1:5000` używany we wczesnych wersjach `myhome` nie działa (port 5000 nie nasłuchuje) — patrz `Projekty/MyHome/AUDYT-2026-09-14.md`.
+
+---
+
+## 📦 Rejestr Zbudowanych Obrazów Kontenera
+
+*(Pusty — pierwszy obraz `if-startpage:v0.1.0` jeszcze nie zbudowany. Wpis pojawi się tutaj po pierwszym `docker build`/`docker push` na serwerze `iflab`.)*

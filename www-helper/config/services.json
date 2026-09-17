@@ -1,0 +1,283 @@
+{
+  "sections": [
+    {
+      "id": "id-1782145628946-f3020e27ed731",
+      "name": "Aplikacje NAS",
+      "groups": [
+        {
+          "name": "Linki",
+          "items": [
+            {
+              "id": "id-1782146314793-9575269a5a00c",
+              "name": "Homeassistant",
+              "description": "Smart Home",
+              "icon": "home-assistant-alt.png",
+              "url": "http://192.168.50.243:8123",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782146856163-27d9f09aaf9fc",
+              "name": "ESP Home",
+              "description": "Obsługa płytek esp",
+              "icon": "esphome.png",
+              "url": "http://192.168.50.243:6052",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782146962406-3edae918eccc8",
+              "name": "Immich Kiosk",
+              "description": "Kiosk do galerii Immich",
+              "icon": "immich-kiosk.png",
+              "url": "http://192.168.50.243:3000/",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782147054834-52332296606f3",
+              "name": "Immich",
+              "description": "Galeria Immich - Serwer",
+              "icon": "immich.png",
+              "url": "http://192.168.50.243:2283",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782147211460-83f8f3de221c6",
+              "name": "Mój Garaż",
+              "description": "LubeLogger - Zarządzanie samochodami",
+              "icon": "lubelogger.png",
+              "url": "http://192.168.50.243:8015/?tab=garage",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782147322266-53e93d0445091",
+              "name": "Mealie - Książka Kucharska",
+              "description": "Domowa książka kucharska",
+              "icon": "mealie.png",
+              "url": "http://192.168.50.243:9925",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782147925217-f6497a4cb1b91",
+              "name": "Dokumenty Domowe",
+              "description": "Paperles-ngx",
+              "icon": "paperless-ngx.png",
+              "url": "http://192.168.50.243:8010/",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782149594674-26d608efc2adf",
+              "name": "Immich Kiosk PC",
+              "description": "Kiosk do galerii Immich -Wersja PC",
+              "icon": "immich-kiosk.png",
+              "url": "http://192.168.50.243/kioskp/",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782149694333-687b0bd3a36b7",
+              "name": "Immich Kiosk Tablet",
+              "description": "Kiosk do galerii Immich -WersjaTablet",
+              "icon": "immich-kiosk.png",
+              "url": "http://192.168.50.243/kioskt/",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782166187452-71fb1712164f1",
+              "name": "Dokumenty Domowe",
+              "description": "Panel skanowania dokumentów",
+              "icon": "dokuwiki.png",
+              "url": "http://192.168.50.243:8012/",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782196099402-cc4052f0bf16f",
+              "name": "Stirling PDF",
+              "description": "PDF kombajn",
+              "icon": "stirling-pdf.png",
+              "url": "http://192.168.50.243:8085",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782361361509-dac104a578ee8",
+              "name": "Homelab-Guard",
+              "description": "Serwer Homelab Guard",
+              "icon": "guard-512.png",
+              "url": "http://192.168.50.44",
+              "kind": "link"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "id-1784460651176-5a99cfcb14f5d",
+      "name": "Idea Forge",
+      "groups": [
+        {
+          "name": "Linki",
+          "items": [
+            {
+              "id": "id-1784461143922-55eeadf76142e",
+              "name": "Blog Idea Forge - Weersja lokalna",
+              "description": "Blog Idea Forge - Weersja lokalna",
+              "icon": "logo_512.png",
+              "url": "http://192.168.50.51:8000",
+              "kind": "link"
+            },
+            {
+              "id": "id-1784781322680-176e33ffc29ed",
+              "name": "Dom Serwer Testowy",
+              "description": "Domowy serwer od podstaw",
+              "icon": "dockge.png",
+              "url": "http://192.168.50.57",
+              "kind": "link"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "id-1782148151259-7fb78bb42f3c2",
+      "name": "3D Corner",
+      "groups": [
+        {
+          "name": "Linki",
+          "items": [
+            {
+              "id": "id-1782148223870-f64b80ff6a6bc",
+              "name": "Spoolman",
+              "description": "Zarządzanie filamentami",
+              "icon": "spoolman.png",
+              "url": "http://192.168.50.243:7912/",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782312745786-fe3fe76f332f5",
+              "name": "Prusa COreOne Octoprint",
+              "description": "Obsługa drukarki Prusa  przez Octoprint",
+              "icon": "octoprint.png",
+              "url": "http://prusa.local",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782312919370-637b530978",
+              "name": "Prusaconnect",
+              "description": "Prusa connect dla Prusa Core One",
+              "icon": "prusa.png",
+              "url": "https://connect.prusa3d.com/printer/46ea8528-bdf8-4365-a1a3-4d4a232d14bb/dashboard",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782313069616-8a18302eb995e",
+              "name": "Printables",
+              "description": "Modele 3D Printables",
+              "icon": "printables.png",
+              "url": "https://www.printables.com/",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782314030749-d1103670e6438",
+              "name": "Prusa Research",
+              "description": "Strona i sklep Prusa",
+              "icon": "prusa-research.png",
+              "url": "https://www.prusa3d.com/pl/strona/wydruki-3d-original-prusa_950/",
+              "kind": "link"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "id-1782308076668-fc18951d0da",
+      "name": "Grafika",
+      "groups": [
+        {
+          "name": "Linki",
+          "items": [
+            {
+              "id": "id-1782314164722-91f97d95e2acf",
+              "name": "SVG Silh",
+              "description": "Gotowce SVG",
+              "icon": "svg-silh.png",
+              "url": "https://svgsilh.com/",
+              "kind": "link"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "id-1782145595554-f468ad209407",
+      "name": "Obsługa Serwera",
+      "groups": [
+        {
+          "name": "Linki",
+          "items": [
+            {
+              "id": "id-1782145720627-7aabb8fb8230e",
+              "name": "Cockpit",
+              "description": "Panel Administracyjny",
+              "icon": "cockpit.png",
+              "url": "https://192.168.50.243:9090",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782145807334-3433217b35a6d",
+              "name": "Beszel",
+              "description": "Statystyki Serwera NAS",
+              "icon": "beszel.png",
+              "url": "http://192.168.50.243:8090/",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782145862339-896f618fefbe9",
+              "name": "Dockge",
+              "description": "Instalator aplikacji",
+              "icon": "dockge.png",
+              "url": "http://192.168.50.243:5001/",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782145970609-99bb6049cefc6",
+              "name": "Nginx-proxy-manager",
+              "description": "Instalator aplikacji",
+              "icon": "nginx-proxy-manager.png",
+              "url": "http://192.168.50.243:81",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782146124055-27a3666eeedfc",
+              "name": "Portainer",
+              "description": "Zarządzanie kontenerami Docker",
+              "icon": "portainer.png",
+              "url": "http://192.168.50.243:9000/",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782146205756-fffb2c83c6eb4",
+              "name": "Quantum",
+              "description": "Quantum file browser",
+              "icon": "filebrowser.png",
+              "url": "http://192.168.50.243:8081/",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782148365215-a77cf65d0173a",
+              "name": "Poczta o2",
+              "description": "Konto pocztowe dla homelab",
+              "icon": "mailpit.png",
+              "url": "https://poczta.o2.pl/",
+              "kind": "link"
+            },
+            {
+              "id": "id-1782361220644-05497de372b3e",
+              "name": "Homelab-Guard",
+              "description": "Serwer Homelab Guard",
+              "icon": "guard-512.png",
+              "url": "http://guard.local",
+              "kind": "link"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

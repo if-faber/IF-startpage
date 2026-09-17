@@ -1,0 +1,390 @@
+/* ==========================================================================
+   Moduł Top (www/mods/top/top.css) — W 100% Spójny ze Stylami i Modalami MyHome
+   ========================================================================== */
+
+/* Dialog i Panel Główny (Zgodne z Edytorem CSS MyHome) */
+.top-dialog {
+  max-width: 980px;
+  width: 95vw;
+  max-height: 90vh;
+  margin: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--modal-radius, 20px);
+  background: rgb(var(--modal-bg-rgb, var(--tile-panel-rgb)) / var(--modal-alpha, var(--tile-panel-alpha)));
+  color: var(--text);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(var(--modal-glass-blur, var(--glass-blur, 16px))) saturate(var(--glass-saturation, 140%));
+  -webkit-backdrop-filter: blur(var(--modal-glass-blur, var(--glass-blur, 16px))) saturate(var(--glass-saturation, 140%));
+  padding: 0;
+  overflow: hidden;
+}
+
+.top-dialog::backdrop {
+  background: rgb(0 0 0 / var(--modal-backdrop-alpha, 0.65));
+  backdrop-filter: blur(var(--modal-backdrop-blur, 10px));
+  -webkit-backdrop-filter: blur(var(--modal-backdrop-blur, 10px));
+}
+
+.top-modal-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  padding: 22px;
+  gap: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Nagłówek Modala */
+.top-header-title-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.top-live-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 12px #10b981;
+  flex-shrink: 0;
+  animation: topPulse 2s infinite ease-in-out;
+}
+
+@keyframes topPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.55; }
+}
+
+.top-header-sub {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+  font-family: var(--font-description, sans-serif);
+}
+
+/* Zawartość Modala (Scrollable) */
+.top-body {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-right: 4px;
+  max-height: calc(90vh - 150px);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.top-body::-webkit-scrollbar {
+  width: 6px;
+}
+.top-body::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 3px;
+}
+
+/* Karty Sekcji wewnątrz Modala (Zgodne z systemem kart MyHome) */
+.top-section-card {
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--line);
+  border-radius: var(--card-radius, 14px);
+  padding: 14px 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+.top-section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-menu, sans-serif);
+}
+
+.top-section-title span:last-child {
+  font-size: 11px;
+  font-weight: normal;
+  color: var(--muted);
+  text-transform: none;
+  font-family: monospace;
+}
+
+/* Siatka Rdzeni Procesora */
+.top-cpu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.top-core-box {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.top-core-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.top-core-temp {
+  font-size: 11px;
+  font-family: monospace;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.top-temp-cool { color: #34d399; background: rgba(52, 211, 153, 0.12); }
+.top-temp-warm { color: #fbbf24; background: rgba(251, 191, 36, 0.12); }
+.top-temp-hot { color: #f87171; background: rgba(248, 113, 113, 0.18); }
+
+.top-core-bar {
+  height: 7px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.top-core-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-alt));
+  transition: width 0.35s ease;
+}
+
+.top-core-fill.is-high {
+  background: linear-gradient(90deg, #fbbf24, #f87171);
+}
+
+/* Układ dwukolumnowy RAM & Sieć */
+.top-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 720px) {
+  .top-row-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Pasek segmentów pamięci RAM */
+.top-ram-segments {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.top-ram-seg-used {
+  background: var(--accent);
+  height: 100%;
+  transition: width 0.35s ease;
+}
+
+.top-ram-seg-cache {
+  background: var(--accent-alt);
+  height: 100%;
+  transition: width 0.35s ease;
+}
+
+.top-ram-seg-free {
+  background: rgba(255, 255, 255, 0.18);
+  height: 100%;
+  transition: width 0.35s ease;
+}
+
+.top-ram-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  font-family: monospace;
+}
+
+.top-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.top-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.top-legend-dot.used { background: var(--accent); }
+.top-legend-dot.cache { background: var(--accent-alt); }
+.top-legend-dot.free { background: rgba(255, 255, 255, 0.4); }
+.top-legend-dot.swap { background: #fb923c; }
+
+/* Liczniki Sieci */
+.top-net-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.top-net-box {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.top-net-label {
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.top-net-speed {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: monospace;
+  color: var(--text);
+}
+
+.top-net-total {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: monospace;
+}
+
+/* Dyski */
+.top-disks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.top-disk-box {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.top-disk-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.top-disk-header strong {
+  color: var(--text);
+}
+
+.top-disk-header span {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: monospace;
+}
+
+/* Tabele Procesów i Kontenerów */
+.top-tabs-nav {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.top-tab-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .16s ease;
+}
+
+.top-tab-btn.active, .top-tab-btn:hover {
+  background: var(--panel-strong);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.top-table-box {
+  overflow-x: auto;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--line);
+}
+
+.top-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: left;
+  font-family: monospace;
+}
+
+.top-table th {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 8px 12px;
+  color: var(--muted);
+  font-weight: 700;
+  border-bottom: 1px solid var(--line);
+}
+
+.top-table td {
+  padding: 6px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text);
+}
+
+.top-table tr:hover td {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.top-badge-cpu {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.top-badge-mem {
+  color: var(--accent-alt);
+  font-weight: 700;
+}
+
+/* Stopka Modala */
+.top-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
