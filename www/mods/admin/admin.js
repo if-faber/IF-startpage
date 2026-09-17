@@ -12,7 +12,7 @@ const state = {
 
 window.state = state;
 
-const TAB_IDS = ["helper", "alerts", "homepage", "modules", "kiosk", "updates", "admin-theme"];
+const TAB_IDS = ["helper", "alerts", "live", "homepage", "modules", "kiosk", "updates", "admin-theme"];
 
 // Zakładki-moduły dostępne wyłącznie przez hub "Moduły" (tab-modules.js) —
 // nie mają własnego przycisku w sidebarze, więc podświetlają przycisk "tab-modules".
@@ -20,6 +20,13 @@ const MODULE_SUBTAB_IDS = ["kiosk"];
 
 // Tab Switching Router
 function switchTab(tabId) {
+  // Zakładki mogą uruchamiać własne odpytywanie na żywo (np. Statystyki Live);
+  // sprzątamy po poprzedniej zakładce, zanim podmienimy #tabContent.
+  if (typeof window.__activeTabCleanup === "function") {
+    window.__activeTabCleanup();
+  }
+  window.__activeTabCleanup = null;
+
   state.activeTab = tabId;
   sessionStorage.setItem("homedash.admin.activeTab", tabId);
 
@@ -40,6 +47,10 @@ function switchTab(tabId) {
     title.textContent = "🔔 Centrum Alertów & Diagnostyka";
     content.innerHTML = renderAlertsTab();
     bindAlertsEvents();
+  } else if (tabId === "live") {
+    title.textContent = "📊 Statystyki Live";
+    content.innerHTML = renderLiveTab();
+    bindLiveEvents();
   } else if (tabId === "homepage") {
     title.textContent = "🏠 Homepage — Ustawienia i Sekcje";
     content.innerHTML = renderHomepageTab();

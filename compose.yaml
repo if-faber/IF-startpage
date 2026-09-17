@@ -1,6 +1,6 @@
 services:
   if-startpage:
-    image: localhost:3000/gravi/if-startpage:v0.1.0
+    image: localhost:3000/gravi/if-startpage:v0.1.2
     container_name: if-startpage
     restart: unless-stopped
     ports:

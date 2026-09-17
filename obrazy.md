@@ -25,4 +25,9 @@ Przed zbudowaniem nowego obrazu Docker agent weryfikuje ten plik i wpisuje rekor
 
 ## 📦 Rejestr Zbudowanych Obrazów Kontenera
 
-*(Pusty — pierwszy obraz `if-startpage:v0.1.0` jeszcze nie zbudowany. Wpis pojawi się tutaj po pierwszym `docker build`/`docker push` na serwerze `iflab`.)*
+### 📦 Obraz: if-startpage:v0.1.2 — 2026-09-17
+- **Pełny Tag Gitea:** `localhost:3000/gravi/if-startpage:v0.1.2` oraz `localhost:3000/gravi/if-startpage:latest`
+- **Rejestr Docelowy:** Repozytorium Gitea na serwerze Fujitsu Q920 (`http://192.168.50.126:3000/gravi/if-startpage`)
+- **Data i czas budowania:** 2026-09-17 (uzupełnić dokładny czas po buildzie)
+- **Status wysyłki (Push Status):** 🟡 Zaplanowany
+- **Zakres wersji:** Status Serwera — karta Centrum Alertów, akordeon Szczegółowej Diagnostyki (Top), naprawa przycisku Odśwież (brak klasy CSS szablonu); Zaplecze — nowa karta „Statystyki Live”.

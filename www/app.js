@@ -515,6 +515,7 @@ function activeSection() {
 }
 
 function renderLinks() {
+  stopStatusTopDiagnostics();
   const section = activeSection();
   document.querySelector("#viewTitle").textContent = section?.name || "Brak sekcji";
   document.querySelector("#toolbarActions").innerHTML = `
@@ -1108,10 +1109,20 @@ async function deleteSection(section) {
   }
 }
 
+let statusTopController = null;
+
+function stopStatusTopDiagnostics() {
+  if (statusTopController) {
+    statusTopController.stop();
+    statusTopController = null;
+  }
+}
+
 function renderServerStatus() {
+  stopStatusTopDiagnostics();
   document.querySelector("#viewTitle").textContent = "Status Serwera";
   document.querySelector("#toolbarActions").innerHTML = `
-    <button type="button" class="button" id="btnRefreshServerStatus">🔄 Odśwież</button>
+    <button type="button" class="primary" id="btnRefreshServerStatus">🔄 Odśwież</button>
   `;
   document.querySelector("#content").innerHTML = `
     <div class="admin-grid">
@@ -1124,31 +1135,46 @@ function renderServerStatus() {
         </div>
         <div class="cockpit-stats" id="systemStats"><div class="empty">Pobieranie danych…</div></div>
       </section>
+      <section class="admin-card alerts-status-card">
+        <div class="panel-heading">
+          <div><span class="eyebrow">Diagnostyka</span><h2>🔔 Centrum Alertów</h2></div>
+          <div class="panel-heading-actions"><a href="./mods/admin/?tab=alerts">Pełny widok →</a></div>
+        </div>
+        <div id="serverStatusAlerts" style="display:grid; gap:10px;"><div class="empty">Pobieranie stanu alertów...</div></div>
+      </section>
       <section class="admin-card ports-card">
         <div class="panel-heading"><div><span class="eyebrow">Narzędzia</span><h2>Wyszukiwanie i test portów</h2></div></div>
         <div id="portTool"></div>
       </section>
-      <section class="admin-card reserve-card">
-        <div class="panel-heading"><div><span class="eyebrow">Skróty</span><h2>Narzędzia i Zaplecze</h2></div></div>
-        <div class="tuning-list admin-shortcuts">
-          <button type="button" id="btnOpenTopShortcut">📊 Szczegółowa Diagnostyka (Top)</button>
-          <a href="./mods/admin/?tab=alerts">🔔 Centrum Alertów i Docker</a>
-          <a href="./mods/admin/">🛠️ Zaplecze Administratora</a>
-          <button id="openAppearancePanelFromStatus" type="button">🎨 Edytor Wyglądu</button>
-        </div>
+      <section class="admin-card top-accordion-card" style="grid-column: 1 / -1;">
+        <details class="top-accordion" id="topAccordion">
+          <summary class="top-accordion-summary">
+            <span>📊 Szczegółowa Diagnostyka (Top)</span>
+            <span class="top-accordion-chevron">›</span>
+          </summary>
+          <div class="top-accordion-body" id="topAccordionMount"></div>
+        </details>
       </section>
     </div>
   `;
   renderPortTool();
   loadSystemStats();
-  document.querySelector("#btnOpenTopShortcut")?.addEventListener("click", () => {
-    if (typeof openTopModal === "function") openTopModal();
+  renderAlertsInto("#serverStatusAlerts");
+  document.querySelector("#btnRefreshServerStatus")?.addEventListener("click", () => {
+    loadSystemStats();
+    renderAlertsInto("#serverStatusAlerts");
+    statusTopController?.refresh();
   });
-  document.querySelector("#btnRefreshServerStatus")?.addEventListener("click", loadSystemStats);
-  document.querySelector("#openAppearancePanelFromStatus")?.addEventListener("click", () => {
-    const pin = getStoredAdminPin();
-    if (!pin) requestAdminPin("appearance");
-    else openAppearancePanel();
+  document.querySelector("#topAccordion")?.addEventListener("toggle", (event) => {
+    const details = event.target;
+    if (details.open) {
+      if (!statusTopController) {
+        statusTopController = TopDiagnostics.mount(document.querySelector("#topAccordionMount"));
+      }
+      statusTopController.start();
+    } else {
+      statusTopController?.stop();
+    }
   });
 }
 
@@ -1274,8 +1300,12 @@ function openQuickAlertsModal() {
   dialog.showModal();
 }
 
-async function renderQuickAlertsContent() {
-  const container = document.querySelector("#quickAlertsContent");
+function renderQuickAlertsContent() {
+  return renderAlertsInto("#quickAlertsContent");
+}
+
+async function renderAlertsInto(selector) {
+  const container = document.querySelector(selector);
   if (!container) return;
   container.innerHTML = '<div class="empty">Pobieranie alertów...</div>';
   try {

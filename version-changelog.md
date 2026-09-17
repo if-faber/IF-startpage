@@ -17,6 +17,18 @@ Przed zbudowaniem nowego obrazu Docker agent ma obowiązek wpisać nową wersję
 
 ---
 
+### 🏷️ [v0.1.2] — 2026-09-17 (Status Serwera: alerty + diagnostyka live, naprawa CSS przycisku)
+- **Moduł:** Homepage (`www/app.js`, `www/styles.css`) / Moduł Top (`www/mods/top/`) / Zaplecze Administratora (`www/mods/admin/`)
+- **Opis zmian:**
+  - Naprawiony przycisk „Odśwież” na widoku Status Serwera — miał klasę `class="button"`, która nie istnieje w szablonie strony głównej (istnieje tylko w Zapleczu), więc renderował się bez żadnego stylu.
+  - Usunięta karta „Skróty: Narzędzia i Zaplecze” ze Statusu Serwera — Zaplecze Administratora i Edytor Wyglądu są już dostępne przez ikonki w stopce sidebaru, więc dublowały nawigację.
+  - Dodana karta „🔔 Centrum Alertów” bezpośrednio pod „Statystykami systemu” na Statusie Serwera — ten sam feed co dotychczasowy szybki podgląd alertów, ale widoczny bez klikania.
+  - „Szczegółowa Diagnostyka (Top)” przeniesiona z modala do rozwijanego panelu (akordeon) pod Statusem Serwera — domyślnie zwinięty, dane pobierane tylko gdy panel jest rozwinięty.
+  - Silnik diagnostyki Top (`mods/top/top.js`) przerobiony na reużywalny (`window.TopDiagnostics.mount()`) — ten sam kod obsługuje teraz modal (widżet CPU/RAM/Temp w nagłówku), akordeon na Statusie Serwera i nową kartę w Zapleczu, każdy z własnym, niezależnym cyklem odpytywania.
+  - Nowa zakładka „📊 Statystyki Live” w Zapleczu Administracyjnym (`mods/admin/tab-live.js`) — pełna diagnostyka Top jako osobna karta w sidebarze.
+  - Usunięta martwa klasa CSS `.tuning-list` (bez odwołań po usunięciu Skrótów).
+- **Autor / Commit:** Claude (Cowork), 2026-09-17, na wyraźne polecenie użytkownika.
+
 ### 🏷️ [v0.1.0] — 2026-09-17 (Pierwsze wydanie Homepage jako samodzielnego projektu)
 - **Moduł:** Ogólny / Kiosk (`www/kiosk/`) / Zaplecze Administratora (`www/mods/admin/`) / Backend Helper (`www-helper/server.js`) / Docker (`Dockerfile`, `compose.yaml`)
 - **Opis zmian:**

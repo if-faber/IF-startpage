@@ -1,14 +1,15 @@
 /* ==========================================================================
    Autorski Moduł www/mods/top/top.js — Glassmorphism Server Diagnostics
    W 100% zintegrowany ze stylami, motywem i modalami MyHome
+
+   Silnik diagnostyki jest reużywalny: window.TopDiagnostics.mount(root)
+   montuje panel (nagłówek + ciało + stopka Pauza/Odśwież) w dowolnym
+   kontenerze (akordeon na stronie głównej, karta „Statystyki Live” w
+   Zapleczu) — niezależnie od modala #topModal otwieranego z widżetu
+   statystyk w nagłówku (window.openTopModal / window.closeTopModal).
    ========================================================================== */
 
 (function () {
-  let activeTimer = null;
-  let isPaused = false;
-  let currentTab = "processes"; // "processes" | "containers"
-  let cachedData = null;
-
   function formatBytes(bytes) {
     const num = Number(bytes);
     if (!Number.isFinite(num) || num <= 0) return "0 B";
@@ -50,6 +51,323 @@
     return "top-temp-hot";
   }
 
+  // ─── Wspólne fragmenty HTML (modal, akordeon, karta w Zapleczu) ───────────
+
+  function titleBoxHtml(subtitle) {
+    return `
+      <div class="top-header-title-box">
+        <div class="top-live-dot" data-role="live-dot" title="Transmisja telemetrii na żywo"></div>
+        <div>
+          <span class="eyebrow">Diagnostyka Serwera</span>
+          <h2 style="margin: 0; font-size: 1.1rem;">${subtitle}</h2>
+          <span class="top-header-sub" data-role="uptime">Ładowanie telemetrii...</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function bodyHtml() {
+    return `
+      <div class="top-body" data-role="body">
+        <div class="empty" style="padding: 2rem;">Inicjalizacja diagnostyki serwera...</div>
+      </div>
+    `;
+  }
+
+  function footerHtml({ withClose } = {}) {
+    return `
+      <menu class="top-modal-footer">
+        <span data-role="last-updated" style="color:var(--muted); font-size:12px;">Oczekiwanie na próbkę</span>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="button" data-role="pause-btn">⏸️ Pauza</button>
+          <button type="button" class="button" data-role="refresh-btn">🔄 Odśwież</button>
+          ${withClose ? '<button type="button" class="button primary" data-role="footer-close-btn">Zamknij</button>' : ""}
+        </div>
+      </menu>
+    `;
+  }
+
+  // ─── Silnik: kontroler niezależny dla każdego zamontowanego panelu ────────
+
+  function createController(root) {
+    let activeTimer = null;
+    let isPaused = false;
+    let currentTab = "processes"; // "processes" | "containers"
+    let cachedData = null;
+
+    async function fetchData() {
+      try {
+        const apiUrl = (typeof dashboardConfig !== "undefined" && dashboardConfig.apiUrl)
+          ? dashboardConfig.apiUrl
+          : window.location.origin;
+
+        const res = await fetch(`${apiUrl}/api/system/top?_t=${Date.now()}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        cachedData = data;
+        renderData(data);
+      } catch (err) {
+        console.warn("Błąd pobierania statystyk top:", err.message);
+        const updated = root.querySelector('[data-role="last-updated"]');
+        if (updated) updated.textContent = `Błąd: ${err.message}`;
+      }
+    }
+
+    function renderData(data) {
+      const body = root.querySelector('[data-role="body"]');
+      const uptimeLabel = root.querySelector('[data-role="uptime"]');
+      const lastUpdated = root.querySelector('[data-role="last-updated"]');
+
+      if (uptimeLabel) {
+        const load = data.cpu ? `Load: ${data.cpu.load1?.toFixed(2)}, ${data.cpu.load5?.toFixed(2)}` : "";
+        const pkgTemp = data.cpu?.packageTemp ? ` • Temp CPU: ${Math.round(data.cpu.packageTemp)}°C` : "";
+        uptimeLabel.textContent = `Uptime: ${formatUptime(data.uptime)} • ${load}${pkgTemp}`;
+      }
+
+      if (lastUpdated) {
+        lastUpdated.textContent = `Zaktualizowano: ${new Date(data.updated || Date.now()).toLocaleTimeString("pl-PL")}`;
+      }
+
+      if (!body) return;
+
+      // 1. CPU Cores Grid
+      const cores = Array.isArray(data.cpu?.cores) ? data.cpu.cores : [];
+      const cpuGridHtml = cores.map((c) => {
+        const usage = Math.max(0, Math.min(100, Number(c.usage) || 0));
+        const temp = c.temperature ? `${Math.round(c.temperature)}°C` : "—";
+        const tempClass = getTempClass(c.temperature);
+        return `
+          <div class="top-core-box">
+            <div class="top-core-header">
+              <span>${c.name}</span>
+              <span class="top-core-temp ${tempClass}">${temp}</span>
+            </div>
+            <div class="top-core-bar">
+              <div class="top-core-fill ${usage > 75 ? 'is-high' : ''}" style="width: ${usage}%"></div>
+            </div>
+            <div style="font-size:11px; text-align:right; font-family:monospace; color:var(--muted);">${usage.toFixed(1)}%</div>
+          </div>
+        `;
+      }).join("");
+
+      // 2. RAM & Swap calculations
+      const mem = data.memory || {};
+      const memTotal = Number(mem.total) || 1;
+      const memUsed = Number(mem.used) || 0;
+      const memCache = Number(mem.cache) || 0;
+      const memFree = Number(mem.available) || 0;
+
+      const usedPct = Math.min(100, (memUsed / memTotal) * 100);
+      const cachePct = Math.min(100 - usedPct, (memCache / memTotal) * 100);
+      const freePct = Math.max(0, 100 - usedPct - cachePct);
+
+      const swap = data.swap || {};
+      const swapTotal = Number(swap.total) || 0;
+      const swapUsed = Number(swap.used) || 0;
+
+      // 3. Network Metrics
+      const net = data.network || {};
+      const rxSpeed = formatSpeed(net.rxSpeed);
+      const txSpeed = formatSpeed(net.txSpeed);
+      const rxTotal = formatBytes(net.rxTotal);
+      const txTotal = formatBytes(net.txTotal);
+
+      // 4. Disks
+      const disks = Array.isArray(data.disks) ? data.disks : [];
+      const disksHtml = disks.map((d) => {
+        const p = Math.max(0, Math.min(100, Number(d.percent) || 0));
+        return `
+          <div class="top-disk-box">
+            <div class="top-disk-header">
+              <strong>${d.mount}</strong>
+              <span>${formatBytes(d.available)} wolne (${p}%)</span>
+            </div>
+            <div class="top-core-bar">
+              <div class="top-core-fill ${p > 85 ? 'is-high' : ''}" style="width: ${p}%"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // 5. Processes & Docker Table
+      const processes = Array.isArray(data.processes) ? data.processes : [];
+      const containers = Array.isArray(data.containers) ? data.containers : [];
+
+      const tableTabsHtml = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <div class="top-tabs-nav">
+            <button type="button" class="top-tab-btn ${currentTab === 'processes' ? 'active' : ''}" data-role="tab-processes">Procesy Host (${processes.length})</button>
+            <button type="button" class="top-tab-btn ${currentTab === 'containers' ? 'active' : ''}" data-role="tab-containers">Kontenery Docker (${containers.length})</button>
+          </div>
+        </div>
+      `;
+
+      let tableRowsHtml = "";
+      if (currentTab === "processes") {
+        tableRowsHtml = `
+          <table class="top-table">
+            <thead>
+              <tr>
+                <th>PID</th>
+                <th>Użytkownik</th>
+                <th>% CPU</th>
+                <th>% RAM</th>
+                <th>Polecenie</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${processes.map((p) => `
+                <tr>
+                  <td>${p.pid}</td>
+                  <td>${p.user}</td>
+                  <td class="top-badge-cpu">${Number(p.cpu).toFixed(1)}%</td>
+                  <td class="top-badge-mem">${Number(p.mem).toFixed(1)}%</td>
+                  <td style="max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${p.command}">${p.command}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        `;
+      } else {
+        tableRowsHtml = `
+          <table class="top-table">
+            <thead>
+              <tr>
+                <th>Kontener</th>
+                <th>% CPU</th>
+                <th>Zużycie RAM</th>
+                <th>PIDs</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${containers.map((c) => `
+                <tr>
+                  <td><strong>${c.name}</strong></td>
+                  <td class="top-badge-cpu">${c.cpu}</td>
+                  <td class="top-badge-mem">${c.mem}</td>
+                  <td>${c.pids || "—"}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        `;
+      }
+
+      body.innerHTML = `
+        <!-- 1. CPU Section -->
+        <section class="top-section-card">
+          <div class="top-section-title">
+            <span>Obciążenie procesora per rdzeń (${cores.length} rdzenie)</span>
+            <span>Load Avg: ${data.cpu?.load1?.toFixed(2) || "0.00"}</span>
+          </div>
+          <div class="top-cpu-grid">${cpuGridHtml || '<div class="empty">Brak danych CPU</div>'}</div>
+        </section>
+
+        <!-- 2. RAM & Network Row -->
+        <div class="top-row-2col">
+          <!-- RAM -->
+          <section class="top-section-card">
+            <div class="top-section-title">
+              <span>Pamięć operacyjna RAM</span>
+              <span>${formatBytes(memUsed)} / ${formatBytes(memTotal)}</span>
+            </div>
+            <div class="top-ram-segments">
+              <div class="top-ram-seg-used" style="width: ${usedPct}%" title="Użyta: ${formatBytes(memUsed)}"></div>
+              <div class="top-ram-seg-cache" style="width: ${cachePct}%" title="Cache/Buffery: ${formatBytes(memCache)}"></div>
+              <div class="top-ram-seg-free" style="width: ${freePct}%" title="Dostępna: ${formatBytes(memFree)}"></div>
+            </div>
+            <div class="top-ram-legend">
+              <div class="top-legend-item"><div class="top-legend-dot used"></div><span>Użyta: ${formatBytes(memUsed)}</span></div>
+              <div class="top-legend-item"><div class="top-legend-dot cache"></div><span>Cache: ${formatBytes(memCache)}</span></div>
+              <div class="top-legend-item"><div class="top-legend-dot free"></div><span>Wolna: ${formatBytes(memFree)}</span></div>
+              <div class="top-legend-item"><div class="top-legend-dot swap"></div><span>Swap: ${formatBytes(swapUsed)} / ${formatBytes(swapTotal)}</span></div>
+            </div>
+          </section>
+
+          <!-- Network -->
+          <section class="top-section-card">
+            <div class="top-section-title">
+              <span>Ruch sieciowy w czasie rzeczywistym</span>
+              <span>${net.interfaces?.map(i => i.iface).join(", ") || "eth0"}</span>
+            </div>
+            <div class="top-net-grid">
+              <div class="top-net-box">
+                <span class="top-net-label">⬇️ Pobieranie (Download)</span>
+                <span class="top-net-speed">${rxSpeed}</span>
+                <span class="top-net-total">Odebrano: ${rxTotal}</span>
+              </div>
+              <div class="top-net-box">
+                <span class="top-net-label">⬆️ Wysyłanie (Upload)</span>
+                <span class="top-net-speed">${txSpeed}</span>
+                <span class="top-net-total">Wysłano: ${txTotal}</span>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- 3. Disks -->
+        <section class="top-section-card">
+          <div class="top-section-title">
+            <span>Dyski i pamięć masowa</span>
+            <span>${disks.length} ${disks.length === 1 ? 'dysk' : 'dyski'}</span>
+          </div>
+          <div class="top-disks-grid">${disksHtml || '<div class="empty">Brak danych o dyskach</div>'}</div>
+        </section>
+
+        <!-- 4. Processes / Containers -->
+        <section class="top-section-card">
+          ${tableTabsHtml}
+          <div class="top-table-box">${tableRowsHtml}</div>
+        </section>
+      `;
+
+      // Bind tab buttons (rebindowane przy każdym renderze, bo są w innerHTML ciała)
+      const tabProcBtn = body.querySelector('[data-role="tab-processes"]');
+      const tabContBtn = body.querySelector('[data-role="tab-containers"]');
+      if (tabProcBtn) tabProcBtn.addEventListener("click", () => { currentTab = "processes"; renderData(data); });
+      if (tabContBtn) tabContBtn.addEventListener("click", () => { currentTab = "containers"; renderData(data); });
+    }
+
+    function togglePause() {
+      isPaused = !isPaused;
+      const btn = root.querySelector('[data-role="pause-btn"]');
+      const dot = root.querySelector('[data-role="live-dot"]');
+      if (btn) btn.textContent = isPaused ? "▶️ Wznów" : "⏸️ Pauza";
+      if (dot) dot.style.animationPlayState = isPaused ? "paused" : "running";
+    }
+
+    function start() {
+      stop();
+      isPaused = false;
+      fetchData();
+      activeTimer = setInterval(() => {
+        if (!isPaused) fetchData();
+      }, 2500);
+    }
+
+    function stop() {
+      if (activeTimer) {
+        clearInterval(activeTimer);
+        activeTimer = null;
+      }
+    }
+
+    root.querySelector('[data-role="pause-btn"]')?.addEventListener("click", togglePause);
+    root.querySelector('[data-role="refresh-btn"]')?.addEventListener("click", fetchData);
+
+    return {
+      start,
+      stop,
+      refresh: fetchData,
+      togglePause,
+      get cachedData() { return cachedData; }
+    };
+  }
+
+  // ─── Tryb 1: Modal globalny (widżet statystyk w nagłówku) ─────────────────
+
+  let modalController = null;
+
   function ensureModal() {
     let dialog = document.querySelector("#topModal");
     if (dialog) return dialog;
@@ -61,39 +379,18 @@
     dialog.innerHTML = `
       <div class="modal-panel top-modal-panel">
         <header class="modal-heading">
-          <div class="top-header-title-box">
-            <div class="top-live-dot" id="topLiveDot" title="Transmisja telemetrii na żywo"></div>
-            <div>
-              <span class="eyebrow">Diagnostyka Serwera</span>
-              <h2 style="margin: 0; font-size: 1.25rem;">Szczegółowe Statystyki Serwera (Top)</h2>
-              <span class="top-header-sub" id="topUptimeLabel">Ładowanie telemetrii...</span>
-            </div>
-          </div>
+          ${titleBoxHtml("Szczegółowe Statystyki Serwera (Top)")}
           <button type="button" data-close aria-label="Zamknij" id="topCloseBtn">×</button>
         </header>
-        
-        <div class="top-body" id="topBody">
-          <div class="empty" style="padding: 2rem;">Inicjalizacja diagnostyki serwera...</div>
-        </div>
-
-        <menu class="top-modal-footer">
-          <span id="topLastUpdated" style="color:var(--muted); font-size:12px;">Oczekiwanie na próbkę</span>
-          <div style="display:flex; gap:8px;">
-            <button type="button" class="button" id="topPauseBtn">⏸️ Pauza</button>
-            <button type="button" class="button" id="topRefreshBtn">🔄 Odśwież</button>
-            <button type="button" class="button primary" id="topFooterCloseBtn">Zamknij</button>
-          </div>
-        </menu>
+        ${bodyHtml()}
+        ${footerHtml({ withClose: true })}
       </div>
     `;
 
     document.body.appendChild(dialog);
 
-    // Event listeners
     dialog.querySelector("#topCloseBtn").addEventListener("click", closeTopModal);
-    dialog.querySelector("#topFooterCloseBtn").addEventListener("click", closeTopModal);
-    dialog.querySelector("#topPauseBtn").addEventListener("click", togglePause);
-    dialog.querySelector("#topRefreshBtn").addEventListener("click", fetchTopData);
+    dialog.querySelector('[data-role="footer-close-btn"]').addEventListener("click", closeTopModal);
 
     dialog.addEventListener("click", (e) => {
       const rect = dialog.getBoundingClientRect();
@@ -104,277 +401,44 @@
       if (!isInDialog) closeTopModal();
     });
 
-    dialog.addEventListener("close", stopPolling);
+    dialog.addEventListener("close", () => modalController?.stop());
+
+    modalController = createController(dialog);
 
     return dialog;
-  }
-
-  function togglePause() {
-    isPaused = !isPaused;
-    const btn = document.querySelector("#topPauseBtn");
-    const dot = document.querySelector("#topLiveDot");
-    if (btn) btn.textContent = isPaused ? "▶️ Wznów" : "⏸️ Pauza";
-    if (dot) dot.style.animationPlayState = isPaused ? "paused" : "running";
-  }
-
-  async function fetchTopData() {
-    try {
-      const apiUrl = (typeof dashboardConfig !== "undefined" && dashboardConfig.apiUrl)
-        ? dashboardConfig.apiUrl
-        : window.location.origin;
-
-      const res = await fetch(`${apiUrl}/api/system/top?_t=${Date.now()}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      cachedData = data;
-      renderTopData(data);
-    } catch (err) {
-      console.warn("Błąd pobierania statystyk top:", err.message);
-      const updated = document.querySelector("#topLastUpdated");
-      if (updated) updated.textContent = `Błąd: ${err.message}`;
-    }
-  }
-
-  function renderTopData(data) {
-    const body = document.querySelector("#topBody");
-    const uptimeLabel = document.querySelector("#topUptimeLabel");
-    const lastUpdated = document.querySelector("#topLastUpdated");
-
-    if (uptimeLabel) {
-      const load = data.cpu ? `Load: ${data.cpu.load1?.toFixed(2)}, ${data.cpu.load5?.toFixed(2)}` : "";
-      const pkgTemp = data.cpu?.packageTemp ? ` • Temp CPU: ${Math.round(data.cpu.packageTemp)}°C` : "";
-      uptimeLabel.textContent = `Uptime: ${formatUptime(data.uptime)} • ${load}${pkgTemp}`;
-    }
-
-    if (lastUpdated) {
-      lastUpdated.textContent = `Zaktualizowano: ${new Date(data.updated || Date.now()).toLocaleTimeString("pl-PL")}`;
-    }
-
-    if (!body) return;
-
-    // 1. CPU Cores Grid
-    const cores = Array.isArray(data.cpu?.cores) ? data.cpu.cores : [];
-    const cpuGridHtml = cores.map((c) => {
-      const usage = Math.max(0, Math.min(100, Number(c.usage) || 0));
-      const temp = c.temperature ? `${Math.round(c.temperature)}°C` : "—";
-      const tempClass = getTempClass(c.temperature);
-      return `
-        <div class="top-core-box">
-          <div class="top-core-header">
-            <span>${c.name}</span>
-            <span class="top-core-temp ${tempClass}">${temp}</span>
-          </div>
-          <div class="top-core-bar">
-            <div class="top-core-fill ${usage > 75 ? 'is-high' : ''}" style="width: ${usage}%"></div>
-          </div>
-          <div style="font-size:11px; text-align:right; font-family:monospace; color:var(--muted);">${usage.toFixed(1)}%</div>
-        </div>
-      `;
-    }).join("");
-
-    // 2. RAM & Swap calculations
-    const mem = data.memory || {};
-    const memTotal = Number(mem.total) || 1;
-    const memUsed = Number(mem.used) || 0;
-    const memCache = Number(mem.cache) || 0;
-    const memFree = Number(mem.available) || 0;
-
-    const usedPct = Math.min(100, (memUsed / memTotal) * 100);
-    const cachePct = Math.min(100 - usedPct, (memCache / memTotal) * 100);
-    const freePct = Math.max(0, 100 - usedPct - cachePct);
-
-    const swap = data.swap || {};
-    const swapTotal = Number(swap.total) || 0;
-    const swapUsed = Number(swap.used) || 0;
-
-    // 3. Network Metrics
-    const net = data.network || {};
-    const rxSpeed = formatSpeed(net.rxSpeed);
-    const txSpeed = formatSpeed(net.txSpeed);
-    const rxTotal = formatBytes(net.rxTotal);
-    const txTotal = formatBytes(net.txTotal);
-
-    // 4. Disks
-    const disks = Array.isArray(data.disks) ? data.disks : [];
-    const disksHtml = disks.map((d) => {
-      const p = Math.max(0, Math.min(100, Number(d.percent) || 0));
-      return `
-        <div class="top-disk-box">
-          <div class="top-disk-header">
-            <strong>${d.mount}</strong>
-            <span>${formatBytes(d.available)} wolne (${p}%)</span>
-          </div>
-          <div class="top-core-bar">
-            <div class="top-core-fill ${p > 85 ? 'is-high' : ''}" style="width: ${p}%"></div>
-          </div>
-        </div>
-      `;
-    }).join("");
-
-    // 5. Processes & Docker Table
-    const processes = Array.isArray(data.processes) ? data.processes : [];
-    const containers = Array.isArray(data.containers) ? data.containers : [];
-
-    const tableTabsHtml = `
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <div class="top-tabs-nav">
-          <button type="button" class="top-tab-btn ${currentTab === 'processes' ? 'active' : ''}" id="topTabProcessesBtn">Procesy Host (${processes.length})</button>
-          <button type="button" class="top-tab-btn ${currentTab === 'containers' ? 'active' : ''}" id="topTabContainersBtn">Kontenery Docker (${containers.length})</button>
-        </div>
-      </div>
-    `;
-
-    let tableRowsHtml = "";
-    if (currentTab === "processes") {
-      tableRowsHtml = `
-        <table class="top-table">
-          <thead>
-            <tr>
-              <th>PID</th>
-              <th>Użytkownik</th>
-              <th>% CPU</th>
-              <th>% RAM</th>
-              <th>Polecenie</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${processes.map((p) => `
-              <tr>
-                <td>${p.pid}</td>
-                <td>${p.user}</td>
-                <td class="top-badge-cpu">${Number(p.cpu).toFixed(1)}%</td>
-                <td class="top-badge-mem">${Number(p.mem).toFixed(1)}%</td>
-                <td style="max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${p.command}">${p.command}</td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      `;
-    } else {
-      tableRowsHtml = `
-        <table class="top-table">
-          <thead>
-            <tr>
-              <th>Kontener</th>
-              <th>% CPU</th>
-              <th>Zużycie RAM</th>
-              <th>PIDs</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${containers.map((c) => `
-              <tr>
-                <td><strong>${c.name}</strong></td>
-                <td class="top-badge-cpu">${c.cpu}</td>
-                <td class="top-badge-mem">${c.mem}</td>
-                <td>${c.pids || "—"}</td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      `;
-    }
-
-    body.innerHTML = `
-      <!-- 1. CPU Section -->
-      <section class="top-section-card">
-        <div class="top-section-title">
-          <span>Obciążenie procesora per rdzeń (${cores.length} rdzenie)</span>
-          <span>Load Avg: ${data.cpu?.load1?.toFixed(2) || "0.00"}</span>
-        </div>
-        <div class="top-cpu-grid">${cpuGridHtml || '<div class="empty">Brak danych CPU</div>'}</div>
-      </section>
-
-      <!-- 2. RAM & Network Row -->
-      <div class="top-row-2col">
-        <!-- RAM -->
-        <section class="top-section-card">
-          <div class="top-section-title">
-            <span>Pamięć operacyjna RAM</span>
-            <span>${formatBytes(memUsed)} / ${formatBytes(memTotal)}</span>
-          </div>
-          <div class="top-ram-segments">
-            <div class="top-ram-seg-used" style="width: ${usedPct}%" title="Użyta: ${formatBytes(memUsed)}"></div>
-            <div class="top-ram-seg-cache" style="width: ${cachePct}%" title="Cache/Buffery: ${formatBytes(memCache)}"></div>
-            <div class="top-ram-seg-free" style="width: ${freePct}%" title="Dostępna: ${formatBytes(memFree)}"></div>
-          </div>
-          <div class="top-ram-legend">
-            <div class="top-legend-item"><div class="top-legend-dot used"></div><span>Użyta: ${formatBytes(memUsed)}</span></div>
-            <div class="top-legend-item"><div class="top-legend-dot cache"></div><span>Cache: ${formatBytes(memCache)}</span></div>
-            <div class="top-legend-item"><div class="top-legend-dot free"></div><span>Wolna: ${formatBytes(memFree)}</span></div>
-            <div class="top-legend-item"><div class="top-legend-dot swap"></div><span>Swap: ${formatBytes(swapUsed)} / ${formatBytes(swapTotal)}</span></div>
-          </div>
-        </section>
-
-        <!-- Network -->
-        <section class="top-section-card">
-          <div class="top-section-title">
-            <span>Ruch sieciowy w czasie rzeczywistym</span>
-            <span>${net.interfaces?.map(i => i.iface).join(", ") || "eth0"}</span>
-          </div>
-          <div class="top-net-grid">
-            <div class="top-net-box">
-              <span class="top-net-label">⬇️ Pobieranie (Download)</span>
-              <span class="top-net-speed">${rxSpeed}</span>
-              <span class="top-net-total">Odebrano: ${rxTotal}</span>
-            </div>
-            <div class="top-net-box">
-              <span class="top-net-label">⬆️ Wysyłanie (Upload)</span>
-              <span class="top-net-speed">${txSpeed}</span>
-              <span class="top-net-total">Wysłano: ${txTotal}</span>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <!-- 3. Disks -->
-      <section class="top-section-card">
-        <div class="top-section-title">
-          <span>Dyski i pamięć masowa</span>
-          <span>${disks.length} ${disks.length === 1 ? 'dysk' : 'dyski'}</span>
-        </div>
-        <div class="top-disks-grid">${disksHtml || '<div class="empty">Brak danych o dyskach</div>'}</div>
-      </section>
-
-      <!-- 4. Processes / Containers -->
-      <section class="top-section-card">
-        ${tableTabsHtml}
-        <div class="top-table-box">${tableRowsHtml}</div>
-      </section>
-    `;
-
-    // Bind tab buttons
-    const tabProcBtn = document.querySelector("#topTabProcessesBtn");
-    const tabContBtn = document.querySelector("#topTabContainersBtn");
-    if (tabProcBtn) tabProcBtn.addEventListener("click", () => { currentTab = "processes"; renderTopData(data); });
-    if (tabContBtn) tabContBtn.addEventListener("click", () => { currentTab = "containers"; renderTopData(data); });
-  }
-
-  function startPolling() {
-    stopPolling();
-    fetchTopData();
-    activeTimer = setInterval(() => {
-      if (!isPaused) fetchTopData();
-    }, 2500);
-  }
-
-  function stopPolling() {
-    if (activeTimer) {
-      clearInterval(activeTimer);
-      activeTimer = null;
-    }
   }
 
   window.openTopModal = function () {
     const modal = ensureModal();
     modal.showModal();
-    isPaused = false;
-    startPolling();
+    modalController.start();
   };
 
   window.closeTopModal = function () {
     const modal = document.querySelector("#topModal");
     if (modal) modal.close();
-    stopPolling();
+    modalController?.stop();
+  };
+
+  // ─── Tryb 2: Montaż w dowolnym kontenerze (akordeon / karta w Zapleczu) ───
+
+  window.TopDiagnostics = {
+    /**
+     * Montuje panel diagnostyczny (nagłówek + ciało + stopka Pauza/Odśwież)
+     * wewnątrz podanego elementu. Zwraca kontroler {start, stop, refresh,
+     * togglePause} — każdy montaż ma własny, niezależny stan i timer, więc
+     * wywołujący MUSI wywołać stop() przy odmontowaniu/nawigacji, inaczej
+     * odpytywanie /api/system/top zostanie w tle.
+     */
+    mount(root, { title } = {}) {
+      if (!root) return null;
+      root.classList.add("top-inline-mount");
+      root.innerHTML = `
+        ${titleBoxHtml(title || "Szczegółowe Statystyki Serwera (Top)")}
+        ${bodyHtml()}
+        ${footerHtml()}
+      `;
+      return createController(root);
+    }
   };
 })();

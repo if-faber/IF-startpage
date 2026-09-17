@@ -454,38 +454,6 @@ button, a { color: inherit; }
 .panel-heading > span { color: var(--muted); font-size: 12px; }
 .panel-heading-actions { display: grid; justify-items: end; gap: 7px; color: var(--muted); font-size: 12px; }
 .panel-heading-actions a { color: var(--accent); text-decoration: none; }
-.tuning-list { display: grid; gap: 10px; }
-.tuning-list span, .tuning-list button, .tuning-list a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 46px;
-  padding: 0 16px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: rgb(var(--admin-panel-rgb) / max(var(--admin-panel-alpha), 0.14));
-  color: var(--text);
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  text-align: center;
-  box-sizing: border-box;
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  box-shadow: 0 8px 18px rgb(0 0 0 / 0.14), inset 0 1px 0 rgb(255 255 255 / 0.10);
-  cursor: pointer;
-  transition: transform .16s ease, border-color .16s ease, background .16s ease, color .16s ease, box-shadow .16s ease;
-}
-.tuning-list button:hover, .tuning-list a:hover {
-  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
-  color: var(--accent);
-  background: var(--accent-soft);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgb(0 0 0 / 0.22);
-}
 .metrics { display: grid; grid-template-columns: repeat(6, minmax(110px, 1fr)); gap: var(--card-gap); }
 .metrics article { min-height: 118px; padding: 16px; border: 1px solid var(--line); border-radius: 17px; background: rgb(255 255 255 / 0.045); }
 .metrics span, .metrics strong { display: block; }
