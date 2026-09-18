@@ -55,19 +55,34 @@ docelowy kontekst użycia są wspólne i celowo spójne.
 
 ## Uruchomienie
 
-`IF-startpage` uruchamia się jako gotowy obraz kontenera, zarządzany przez
-[Dockge](https://github.com/louislam/dockge) i zwykły `compose.yaml` —
-zgodnie z konwencją pakietu IdeaForge (`docker/app/` + `docker/app-data/`,
-zobacz `IF-home-server`). Obraz nie jest budowany ręcznie z kodu przy
-każdym wdrożeniu — buduje się go raz i wypycha do rejestru kontenerów,
-skąd Dockge go pobiera (`pull`) przy instalacji/aktualizacji, tak jak
-resztę usług w pakiecie.
+`IF-startpage` to gotowy obraz kontenera — buduje się go raz, wypycha do
+rejestru IdeaForge i wdraża przez [Dockge](https://github.com/louislam/dockge),
+zgodnie z konwencją pakietu (`docker/app/` + `docker/app-data/`, zobacz
+`IF-home-server`). Nie buduje się go od nowa przy każdej instalacji.
 
-Pełna, gotowa do wklejenia konfiguracja `compose.yaml` (z adresem rejestru
-i domyślnymi wolumenami) jest częścią dokumentacji wdrożeniowej na
-[ideaforge.pl](https://ideaforge.pl) — nie w tym README, żeby uniknąć
-rozjazdu między dwoma kopiami tej samej instrukcji.
+```yaml
+services:
+  if-startpage:
+    image: 192.168.50.126:3000/gravi/if-startpage:v0.1.3
+    container_name: if-startpage
+    restart: unless-stopped
+    ports:
+      - "80:3010"
+    environment:
+      - DASHBOARD_PIN=1234
+      - APP_BASE_DIR=/app
+      - CONFIG_DIR=/app/config
+      - WWW_DIR=/app/www
+      - HELPER_DIR=/app/www-helper
+      - BACKUP_DIR=/app/backups
+    volumes:
+      - /home/gravi/docker/app-data/if-startpage/config:/app/config
+      - /home/gravi/docker/app-data/if-startpage/backups:/app/backups
+      - /var/run/docker.sock:/var/run/docker.sock
+```
 
+Powyższy `image:` wskazuje na rejestr kontenerów IdeaForge w sieci
+domowej — poza tą siecią obraz nie jest dziś publicznie pobieralny.
 Zmień `DASHBOARD_PIN` na własny PIN administracyjny przed wystawieniem
 serwera poza zaufaną sieć domową.
 
