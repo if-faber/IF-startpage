@@ -55,36 +55,18 @@ docelowy kontekst użycia są wspólne i celowo spójne.
 
 ## Uruchomienie
 
-Repo nie publikuje gotowego obrazu do żadnego publicznego rejestru —
-obraz buduje się lokalnie z tego kodu. Przykładowy `compose.yaml`:
+`IF-startpage` uruchamia się jako gotowy obraz kontenera, zarządzany przez
+[Dockge](https://github.com/louislam/dockge) i zwykły `compose.yaml` —
+zgodnie z konwencją pakietu IdeaForge (`docker/app/` + `docker/app-data/`,
+zobacz `IF-home-server`). Obraz nie jest budowany ręcznie z kodu przy
+każdym wdrożeniu — buduje się go raz i wypycha do rejestru kontenerów,
+skąd Dockge go pobiera (`pull`) przy instalacji/aktualizacji, tak jak
+resztę usług w pakiecie.
 
-```yaml
-services:
-  if-startpage:
-    build: .
-    image: if-startpage:latest
-    container_name: if-startpage
-    restart: unless-stopped
-    ports:
-      - "80:3010"
-    environment:
-      - DASHBOARD_PIN=1234
-      - APP_BASE_DIR=/app
-      - CONFIG_DIR=/app/config
-      - WWW_DIR=/app/www
-      - HELPER_DIR=/app/www-helper
-      - BACKUP_DIR=/app/backups
-    volumes:
-      - ./data/config:/app/config
-      - ./data/backups:/app/backups
-      - /var/run/docker.sock:/var/run/docker.sock
-```
-
-```sh
-git clone https://github.com/if-faber/IF-startpage.git
-cd IF-startpage
-docker compose up -d --build
-```
+Pełna, gotowa do wklejenia konfiguracja `compose.yaml` (z adresem rejestru
+i domyślnymi wolumenami) jest częścią dokumentacji wdrożeniowej na
+[ideaforge.pl](https://ideaforge.pl) — nie w tym README, żeby uniknąć
+rozjazdu między dwoma kopiami tej samej instrukcji.
 
 Zmień `DASHBOARD_PIN` na własny PIN administracyjny przed wystawieniem
 serwera poza zaufaną sieć domową.
