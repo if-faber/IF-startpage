@@ -79,6 +79,23 @@ zobacz `IF-home-server`).
 
 ## Uruchomienie
 
+**Zanim wdrożysz ten stos przez Dockge**, utwórz najpierw foldery na dane
+trwałe i nadaj uprawnienia (poniżej i w przykładzie compose.yaml zamień
+`TWOJA-NAZWA-UZYTKOWNIKA` na swoją prawdziwą nazwę użytkownika — sprawdź
+komendą `echo $HOME`, np. `/home/marek`):
+
+```
+mkdir -p ~/docker/app-data/if-startpage/config
+mkdir -p ~/docker/app-data/if-startpage/backups
+sudo chown -R $(whoami):$(whoami) ~/docker/app-data/if-startpage
+```
+
+W pliku `compose.yaml` używaj **pełnych ścieżek** (`/home/<Twoja-nazwa>/...`),
+a nie ścieżek względnych (`../../app-data/...`) — pełne ścieżki zawsze
+wskazują na właściwe miejsce, niezależnie od tego, jak Dockge akurat widzi
+swój katalog stosów (patrz sekcja "Jak bezpiecznie dodać nowy kontener
+(stos) przez Dockge" w README `IF-home-server`):
+
 ```yaml
 services:
   if-startpage:
@@ -97,11 +114,13 @@ services:
       - HOST_APPS_DIR=/host-apps
     volumes:
       # Konwencja dwufolderowa: ten plik leży w docker/app/if-startpage/,
-      # dane trwałe w ../../app-data/if-startpage/.
-      - ../../app-data/if-startpage/config:/app/config
-      - ../../app-data/if-startpage/backups:/app/backups
+      # dane trwałe w docker/app-data/if-startpage/. UŻYWAJ PEŁNEJ ŚCIEŻKI
+      # zaczynającej się od /home/<nazwa-uzytkownika>/, NIE ../../ — patrz
+      # wyżej dlaczego.
+      - /home/TWOJA-NAZWA-UZYTKOWNIKA/docker/app-data/if-startpage/config:/app/config
+      - /home/TWOJA-NAZWA-UZYTKOWNIKA/docker/app-data/if-startpage/backups:/app/backups
       # Wymagane przez zakładkę Aktualizacje (patrz "Wymagania" wyżej).
-      - ../../app:/host-apps
+      - /home/TWOJA-NAZWA-UZYTKOWNIKA/docker/app:/host-apps
       - /var/run/docker.sock:/var/run/docker.sock
 ```
 
