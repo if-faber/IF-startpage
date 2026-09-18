@@ -1,19 +1,26 @@
 services:
   if-startpage:
-    image: localhost:3000/gravi/if-startpage:v0.1.2
+    image: ghcr.io/if-faber/if-startpage:v0.1.3
     container_name: if-startpage
     restart: unless-stopped
     ports:
-      - "8091:3010"   # port boczny do testów na iflab — produkcyjny port ustala się osobno przy realnym wdrożeniu
+      - "80:3010"
     environment:
-      - DASHBOARD_PIN=1234
+      - DASHBOARD_PIN=1234   # ZMIEN przed wystawieniem serwera poza zaufana siec domowa
       - APP_BASE_DIR=/app
       - CONFIG_DIR=/app/config
       - WWW_DIR=/app/www
       - HELPER_DIR=/app/www-helper
       - BACKUP_DIR=/app/backups
+      - HOST_APPS_DIR=/host-apps
     volumes:
-      - /home/gravi/docker/app-data/if-startpage/config:/app/config
-      - /home/gravi/docker/app-data/if-startpage/backups:/app/backups
-      - /mnt/data:/mnt/data:ro
+      # Zgodnie z konwencja dwufolderowa repo IF-home-server: ten plik lezy w
+      # docker/app/if-startpage/, dane trwale w ../../app-data/if-startpage/.
+      - ../../app-data/if-startpage/config:/app/config
+      - ../../app-data/if-startpage/backups:/app/backups
+      # Wymagane przez zakladke "Aktualizacje" w Zapleczu - odczytuje I ZAPISUJE
+      # tagi wersji w compose.yaml innych stosow (docker/app/<stos>/compose.yaml).
+      # Musi wskazywac na caly docker/app/, nie tylko na wlasny podfolder.
+      - ../../app:/host-apps
+      # Diagnostyka/Top, Status kontenerow, Aktualizacje - wglad w Dockera hosta.
       - /var/run/docker.sock:/var/run/docker.sock

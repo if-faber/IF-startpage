@@ -38,7 +38,9 @@ docelowy kontekst użycia są wspólne i celowo spójne.
   - Diagnostyka Serwera / Top (CPU, RAM, dyski, sieć, procesy) — panel
     inline, bez okien modalnych
   - Statystyki Live (ten sam silnik diagnostyki, jako osobna zakładka)
-  - Aktualizacje (pakiety systemowe apt + wersje kontenerów Docker)
+  - Aktualizacje (pakiety systemowe apt + wersje kontenerów Docker —
+    odczytuje i podmienia tag wersji bezpośrednio w `compose.yaml` innych
+    stosów, patrz wymagany wolumen `/host-apps` niżej)
   - Helper & System, Wygląd Zaplecza (edytor CSS)
 - **Kiosk statusu serwera** — 4 zakładki: Status serwera (z rozwijanym
   panelem szczegółowej diagnostyki), Live (podgląd zużycia per-kontener w
@@ -52,39 +54,56 @@ docelowy kontekst użycia są wspólne i celowo spójne.
 - Zamontowany `/var/run/docker.sock` — potrzebny do Diagnostyki/Top,
   Statusu kontenerów i zakładki Aktualizacje (kontener ma wgląd w Dockera
   hosta).
+- Zamontowany katalog `docker/app/` hosta jako `/host-apps` (**wymagane**
+  przez zakładkę Aktualizacje — bez tego wolumenu podmiana wersji
+  kontenera w UI zwróci błąd 404, bo backend nie znajdzie pliku
+  `compose.yaml` stosu, który ma zaktualizować).
+
+## Obraz kontenera
+
+`IF-startpage` to gotowy obraz kontenera — nie buduje się go lokalnie przy
+każdej instalacji. Obraz jest budowany i publikowany automatycznie przez
+**GitHub Actions** (`.github/workflows/docker-publish.yml`) przy każdym
+tagu wersji (`vX.Y.Z`) i wypychany do **GitHub Container Registry**:
+
+```
+ghcr.io/if-faber/if-startpage:vX.Y.Z
+ghcr.io/if-faber/if-startpage:latest
+```
+
+Publiczny, wersjonowany obraz — do pobrania skądkolwiek (nie tylko z sieci
+domowej), zgodnie z tym, że `IF-startpage` jest częścią publicznego pakietu
+IdeaForge. Wdrożenie odbywa się przez [Dockge](https://github.com/louislam/dockge),
+zgodnie z konwencją dwufolderową pakietu (`docker/app/` + `docker/app-data/`,
+zobacz `IF-home-server`).
 
 ## Uruchomienie
-
-`IF-startpage` to gotowy obraz kontenera — buduje się go raz, wypycha do
-rejestru IdeaForge i wdraża przez [Dockge](https://github.com/louislam/dockge),
-zgodnie z konwencją pakietu (`docker/app/` + `docker/app-data/`, zobacz
-`IF-home-server`). Nie buduje się go od nowa przy każdej instalacji.
 
 ```yaml
 services:
   if-startpage:
-    image: 192.168.50.126:3000/gravi/if-startpage:v0.1.2
+    image: ghcr.io/if-faber/if-startpage:v0.1.3
     container_name: if-startpage
     restart: unless-stopped
     ports:
       - "80:3010"
     environment:
-      - DASHBOARD_PIN=1234
+      - DASHBOARD_PIN=1234   # ZMIEŃ przed wystawieniem serwera poza zaufaną sieć domową
       - APP_BASE_DIR=/app
       - CONFIG_DIR=/app/config
       - WWW_DIR=/app/www
       - HELPER_DIR=/app/www-helper
       - BACKUP_DIR=/app/backups
+      - HOST_APPS_DIR=/host-apps
     volumes:
-      - /home/gravi/docker/app-data/if-startpage/config:/app/config
-      - /home/gravi/docker/app-data/if-startpage/backups:/app/backups
+      # Konwencja dwufolderowa: ten plik leży w docker/app/if-startpage/,
+      # dane trwałe w ../../app-data/if-startpage/.
+      - ../../app-data/if-startpage/config:/app/config
+      - ../../app-data/if-startpage/backups:/app/backups
+      # Wymagane przez zakładkę Aktualizacje (patrz "Wymagania" wyżej).
+      - ../../app:/host-apps
       - /var/run/docker.sock:/var/run/docker.sock
 ```
-
-Powyższy `image:` wskazuje na rejestr kontenerów IdeaForge w sieci
-domowej — poza tą siecią obraz nie jest dziś publicznie pobieralny.
-Zmień `DASHBOARD_PIN` na własny PIN administracyjny przed wystawieniem
-serwera poza zaufaną sieć domową.
 
 ## Relacja z IF-MyHome
 

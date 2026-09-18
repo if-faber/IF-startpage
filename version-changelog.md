@@ -17,6 +17,17 @@ Przed zbudowaniem nowego obrazu Docker agent ma obowiązek wpisać nową wersję
 
 ---
 
+### 🏷️ [v0.1.3] — 2026-09-18 (Audyt i naprawa: publikacja ghcr.io + brakujący wolumen /host-apps)
+- **Moduł:** Ogólny / Docker / Dokumentacja
+- **Opis zmian:**
+- **Znaleziony i naprawiony realny błąd funkcjonalny:** zakładka Aktualizacje (`www-helper/server.js`, `HOST_APPS_DIR`) czyta i zapisuje `compose.yaml` innych stosów pod ścieżką `/host-apps` — ten wolumen nigdy nie był zamontowany w `compose.yaml` repo, więc funkcja była martwa od zawsze (404 przy próbie zmiany wersji). Dodano `../../app:/host-apps` do wolumenów.
+- **Naprawiona rozjazd między `compose.yaml` a przykładem w `README.md`:** oba pliki miały różne adresy rejestru, różne tagi wersji i różne porty. Ujednolicone na jedno źródło prawdy.
+- **`compose.yaml` przepisany na ścieżki względne** (`../../app-data/if-startpage/...` zamiast `/home/gravi/docker/app-data/if-startpage/...`) — zgodnie z konwencją już stosowaną w `docker/app/wp-local/compose.yaml` repo `IF-home-server`; przestaje być przypięty do konkretnej nazwy użytkownika.
+- **Dodano `.github/workflows/docker-publish.yml`** — automatyczny build obrazu i publikacja do `ghcr.io/if-faber/if-startpage` przy każdym tagu `vX.Y.Z`, przez wbudowany `GITHUB_TOKEN` (bez ręcznych sekretów). Obraz publiczny na GitHub, niezależny od rejestru Gitea w sieci domowej.
+- **Usunięty niedokumentowany wolumen `/mnt/data:/mnt/data:ro`** — kod nie odwołuje się do tej ścieżki żadną zmienną środowiskową, pozostałość bez udokumentowanego zastosowania.
+- **Status:** 🟢 Kod gotowy, obraz budowany i publikowany automatycznie przez GitHub Actions po wypchnięciu tagu `v0.1.3`.
+- **Autor / Commit:** Claude (Cowork), 2026-09-18, audyt na wyraźne polecenie użytkownika.
+
 ### 🏷️ [v0.1.3] — 2026-09-18 (Usunięcie modala diagnostyki — panel/zakładka jedynym miejscem)
 - **Moduł:** Moduł Top (`www/mods/top/top.js`, `top.css`) / Homepage (`www/app.js`)
 - **Opis zmian:**
