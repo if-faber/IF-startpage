@@ -17,6 +17,16 @@ Przed zbudowaniem nowego obrazu Docker agent ma obowiązek wpisać nową wersję
 
 ---
 
+### 🏷️ [v0.1.4] — 2026-09-18 (KRYTYCZNE: usunięcie prawdziwych danych domowych z repo i obrazu)
+- **Moduł:** Ogólny / Docker / Bezpieczeństwo
+- **Opis zmian:**
+- **Usunięte z repo i z obrazu Docker:** `www-helper/config/{services,dashboard,theme}.json` zawierały prawdziwą, żywą konfigurację domową — adresy IP wielu urządzeń w sieci (NAS, Guard, serwery robocze), linki do Home Assistant, Immich, LubeLogger, Mealie, Paperless-ngx, prawdziwy identyfikator drukarki w Prusa Connect, link do prywatnej poczty. Obecne w publicznym repo od pierwszego commitu (v0.1.0) i wypieczone do opublikowanego obrazu `ghcr.io/if-faber/if-startpage:v0.1.3` (Dockerfile kopiował całe `www-helper/` bez wykluczenia `config/`).
+- **Usunięty opublikowany pakiet `ghcr.io/if-faber/if-startpage`** w całości (wersje v0.1.3 i latest) — dane osobiste były realnie pobieralne przez ten czas.
+- Dodano `www-helper/config/` do `.gitignore` i `.dockerignore` — `server.js` sam tworzy bezpieczne wartości domyślne (puste sekcje), gdy tych plików nie ma, więc nigdy nie powinny być częścią repo ani obrazu, tylko zamontowanego w czasie działania wolumenu `CONFIG_DIR`.
+- Usunięte też odsłonięte adresy LAN z `obrazy.md`, `www/README.md` i placeholdera w `tab-kiosk.js`.
+- **Status:** 🟢 Kod gotowy, nowy czysty obraz budowany i publikowany po wypchnięciu tagu v0.1.4.
+- **Autor / Commit:** Claude (Cowork), 2026-09-18, na wyraźną, uzasadnioną interwencję użytkownika po wykryciu wycieku.
+
 ### 🏷️ [v0.1.3] — 2026-09-18 (Audyt i naprawa: publikacja ghcr.io + brakujący wolumen /host-apps)
 - **Moduł:** Ogólny / Docker / Dokumentacja
 - **Opis zmian:**
