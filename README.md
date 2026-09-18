@@ -115,9 +115,12 @@ najbliższym buildzie `IF-MyHome`.
 
 ## Dokumentacja
 
-Ten README to skrócone wprowadzenie. Pełna, szczegółowa dokumentacja
-(instrukcje krok po kroku, zrzuty ekranu, opisy poszczególnych modułów)
-docelowo mieszka na [ideaforge.pl](https://ideaforge.pl).
+Ten README to na razie **jedyna i pełna** dokumentacja projektu. Docelowo
+szczegółowa dokumentacja (instrukcje krok po kroku, zrzuty ekranu, opisy
+poszczególnych modułów) ma powstać na [ideaforge.pl](https://ideaforge.pl) —
+strona istnieje, ale nie ma tam jeszcze treści dotyczącej `IF-startpage`.
+Ten README zostanie zaktualizowany o link do konkretnej podstrony dopiero
+wtedy, gdy ta treść tam faktycznie powstanie.
 
 ## Licencja
 
