@@ -63,7 +63,7 @@ zgodnie z konwencją pakietu (`docker/app/` + `docker/app-data/`, zobacz
 ```yaml
 services:
   if-startpage:
-    image: 192.168.50.126:3000/gravi/if-startpage:v0.1.3
+    image: 192.168.50.126:3000/gravi/if-startpage:v0.1.2
     container_name: if-startpage
     restart: unless-stopped
     ports:
