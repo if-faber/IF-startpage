@@ -82,7 +82,7 @@ zobacz `IF-home-server`).
 ```yaml
 services:
   if-startpage:
-    image: ghcr.io/if-faber/if-startpage:v0.1.3
+    image: ghcr.io/if-faber/if-startpage:v0.1.4
     container_name: if-startpage
     restart: unless-stopped
     ports:
