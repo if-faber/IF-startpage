@@ -56,7 +56,7 @@ function renderKioskTab() {
                 </select>
               </label>
               <label style="grid-column: 1 / -1;" id="kioskItemUrlGroup">Adres URL (http://... lub https://...)
-                <input type="url" id="kioskItemUrl" placeholder="http://192.168.50.243:3000/">
+                <input type="url" id="kioskItemUrl" placeholder="http://192.168.1.100:3000/">
               </label>
               <label style="grid-column: 1 / -1;">Nazwa ikony (z katalogu www/kiosk/icons/ lub pełny URL)
                 <input type="text" id="kioskItemIcon" placeholder="np. immich.png, weather.png...">

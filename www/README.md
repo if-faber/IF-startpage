@@ -1,11 +1,11 @@
 # Homelab NAS — IF-startpage
 
-Interfejs Strony Głównej SPA projektu **IF-startpage** (samodzielna strona startowa serwera domowego, wydzielona z `myhome` 2026-09-17). Testowana na serwerze roboczym Fujitsu Q920 (`iflab`, `192.168.50.126`).
+Interfejs Strony Głównej SPA projektu **IF-startpage** (samodzielna strona startowa serwera domowego, wydzielona z `myhome` 2026-09-17). Testowana na serwerze roboczym Fujitsu Q920 (`iflab`).
 
 Sekcje i linki są obsługiwane i trwale zapisywane przez API helpera:
 
 ```text
-http://192.168.50.127:3010/api/services
+http://<adres-serwera>:3010/api/services
 ```
 
 Struktura:
