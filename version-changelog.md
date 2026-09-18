@@ -17,6 +17,15 @@ Przed zbudowaniem nowego obrazu Docker agent ma obowiązek wpisać nową wersję
 
 ---
 
+### 🏷️ [v0.1.3] — 2026-09-18 (Usunięcie modala diagnostyki — panel/zakładka jedynym miejscem)
+- **Moduł:** Moduł Top (`www/mods/top/top.js`, `top.css`) / Homepage (`www/app.js`)
+- **Opis zmian:**
+  - Całkowicie usunięty kod modala diagnostyki (`<dialog>`, `ensureModal()`, `openTopModal()`/`closeTopModal()`, style `.top-dialog`/`.top-modal-panel`) — pierwotna intencja („zamiast modala zakładka") wymagała pełnego zastąpienia, nie dodania akordeonu obok modala.
+  - Kliknięcie widżetu CPU/RAM/Temp w nagłówku nie otwiera już modala — przenosi na widok Status Serwera i rozwija panel „Szczegółowa Diagnostyka (Top)" (ten sam akordeon, co na Statusie Serwera).
+  - Diagnostyka Top występuje odtąd wyłącznie jako panel inline: akordeon na Statusie Serwera i karta „Statystyki Live" w Zapleczu (obie z v0.1.2) — nigdy jako popup.
+- **Status:** 🟡 Kod gotowy, obraz jeszcze nie zbudowany ani nie wypchnięty do rejestru Gitea.
+- **Autor / Commit:** Claude (Cowork), 2026-09-18, na wyraźne polecenie użytkownika.
+
 ### 🏷️ [v0.1.2] — 2026-09-17 (Status Serwera: alerty + diagnostyka live, naprawa CSS przycisku)
 - **Moduł:** Homepage (`www/app.js`, `www/styles.css`) / Moduł Top (`www/mods/top/`) / Zaplecze Administratora (`www/mods/admin/`)
 - **Opis zmian:**

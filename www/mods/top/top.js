@@ -1,12 +1,12 @@
 /* ==========================================================================
    Autorski Moduł www/mods/top/top.js — Glassmorphism Server Diagnostics
-   W 100% zintegrowany ze stylami, motywem i modalami MyHome
+   W 100% zintegrowany ze stylami i motywem MyHome
 
    Silnik diagnostyki jest reużywalny: window.TopDiagnostics.mount(root)
    montuje panel (nagłówek + ciało + stopka Pauza/Odśwież) w dowolnym
-   kontenerze (akordeon na stronie głównej, karta „Statystyki Live” w
-   Zapleczu) — niezależnie od modala #topModal otwieranego z widżetu
-   statystyk w nagłówku (window.openTopModal / window.closeTopModal).
+   kontenerze — akordeon „Szczegółowa Diagnostyka” pod Statusem Serwera na
+   stronie głównej oraz karta „Statystyki Live” w Zapleczu. Świadomie bez
+   modala/dialogu — to ma być zakładka/panel, nie okienko wyskakujące.
    ========================================================================== */
 
 (function () {
@@ -364,63 +364,9 @@
     };
   }
 
-  // ─── Tryb 1: Modal globalny (widżet statystyk w nagłówku) ─────────────────
-
-  let modalController = null;
-
-  function ensureModal() {
-    let dialog = document.querySelector("#topModal");
-    if (dialog) return dialog;
-
-    dialog = document.createElement("dialog");
-    dialog.id = "topModal";
-    dialog.className = "wide-dialog top-dialog";
-
-    dialog.innerHTML = `
-      <div class="modal-panel top-modal-panel">
-        <header class="modal-heading">
-          ${titleBoxHtml("Szczegółowe Statystyki Serwera (Top)")}
-          <button type="button" data-close aria-label="Zamknij" id="topCloseBtn">×</button>
-        </header>
-        ${bodyHtml()}
-        ${footerHtml({ withClose: true })}
-      </div>
-    `;
-
-    document.body.appendChild(dialog);
-
-    dialog.querySelector("#topCloseBtn").addEventListener("click", closeTopModal);
-    dialog.querySelector('[data-role="footer-close-btn"]').addEventListener("click", closeTopModal);
-
-    dialog.addEventListener("click", (e) => {
-      const rect = dialog.getBoundingClientRect();
-      const isInDialog = (
-        rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
-        rect.left <= e.clientX && e.clientX <= rect.left + rect.width
-      );
-      if (!isInDialog) closeTopModal();
-    });
-
-    dialog.addEventListener("close", () => modalController?.stop());
-
-    modalController = createController(dialog);
-
-    return dialog;
-  }
-
-  window.openTopModal = function () {
-    const modal = ensureModal();
-    modal.showModal();
-    modalController.start();
-  };
-
-  window.closeTopModal = function () {
-    const modal = document.querySelector("#topModal");
-    if (modal) modal.close();
-    modalController?.stop();
-  };
-
-  // ─── Tryb 2: Montaż w dowolnym kontenerze (akordeon / karta w Zapleczu) ───
+  // ─── Montaż w dowolnym kontenerze (akordeon na Statusie Serwera / karta
+  //     „Statystyki Live” w Zapleczu). Bez modala — na wyraźne życzenie
+  //     usera diagnostyka Top żyje wyłącznie jako wbudowany panel/zakładka.
 
   window.TopDiagnostics = {
     /**

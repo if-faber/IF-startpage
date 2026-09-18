@@ -423,8 +423,14 @@ function bindShell() {
   document.querySelector("#sidebarIconAlerts")?.addEventListener("click", openQuickAlertsModal);
   document.querySelector("#btnQuickRefresh")?.addEventListener("click", renderQuickAlertsContent);
   document.querySelector("#systemStatsWidget")?.addEventListener("click", () => {
-    if (typeof openTopModal === "function") {
-      openTopModal();
+    // Bez modala: kliknięcie widżetu przenosi na Status Serwera i rozwija
+    // panel „Szczegółowa Diagnostyka (Top)”.
+    state.view = "status";
+    render();
+    const details = document.querySelector("#topAccordion");
+    if (details) {
+      details.open = true;
+      details.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   });
   document.querySelector("#sidebarIconTheme")?.addEventListener("click", () => {

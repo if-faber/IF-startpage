@@ -1,41 +1,9 @@
 /* ==========================================================================
-   Moduł Top (www/mods/top/top.css) — W 100% Spójny ze Stylami i Modalami MyHome
+   Moduł Top (www/mods/top/top.css) — W 100% Spójny ze Stylami MyHome
+   Bez modala/dialogu — panel montowany inline (akordeon / karta w Zapleczu).
    ========================================================================== */
 
-/* Dialog i Panel Główny (Zgodne z Edytorem CSS MyHome) */
-.top-dialog {
-  max-width: 980px;
-  width: 95vw;
-  max-height: 90vh;
-  margin: auto;
-  border: 1px solid var(--line);
-  border-radius: var(--modal-radius, 20px);
-  background: rgb(var(--modal-bg-rgb, var(--tile-panel-rgb)) / var(--modal-alpha, var(--tile-panel-alpha)));
-  color: var(--text);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(var(--modal-glass-blur, var(--glass-blur, 16px))) saturate(var(--glass-saturation, 140%));
-  -webkit-backdrop-filter: blur(var(--modal-glass-blur, var(--glass-blur, 16px))) saturate(var(--glass-saturation, 140%));
-  padding: 0;
-  overflow: hidden;
-}
-
-.top-dialog::backdrop {
-  background: rgb(0 0 0 / var(--modal-backdrop-alpha, 0.65));
-  backdrop-filter: blur(var(--modal-backdrop-blur, 10px));
-  -webkit-backdrop-filter: blur(var(--modal-backdrop-blur, 10px));
-}
-
-.top-modal-panel {
-  display: flex;
-  flex-direction: column;
-  max-height: 90vh;
-  padding: 22px;
-  gap: 16px;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-/* Nagłówek Modala */
+/* Nagłówek panelu */
 .top-header-title-box {
   display: flex;
   align-items: center;
@@ -65,14 +33,14 @@
   font-family: var(--font-description, sans-serif);
 }
 
-/* Zawartość Modala (Scrollable) */
+/* Zawartość panelu (Scrollable) */
 .top-body {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 14px;
   padding-right: 4px;
-  max-height: calc(90vh - 150px);
+  max-height: 60vh;
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
 }
@@ -85,7 +53,7 @@
   border-radius: 3px;
 }
 
-/* Karty Sekcji wewnątrz Modala (Zgodne z systemem kart MyHome) */
+/* Karty Sekcji wewnątrz panelu (Zgodne z systemem kart MyHome) */
 .top-section-card {
   background: rgba(0, 0, 0, 0.28);
   border: 1px solid var(--line);
@@ -378,7 +346,7 @@
   font-weight: 700;
 }
 
-/* Stopka Modala */
+/* Stopka panelu (Pauza / Odśwież) */
 .top-modal-footer {
   display: flex;
   justify-content: space-between;
@@ -391,10 +359,9 @@
 
 /* ==========================================================================
    Montaż inline (akordeon na Statusie Serwera / karta „Statystyki Live”
-   w Zapleczu) — ten sam silnik co modal, bez ograniczeń wysokości modala.
+   w Zapleczu) — jedyny tryb pracy panelu.
    ========================================================================== */
 .top-inline-mount { display: flex; flex-direction: column; gap: 14px; }
-.top-inline-mount .top-body { max-height: 60vh; }
 
 /* Rozwijany panel „Szczegółowa Diagnostyka (Top)” pod Statusem Serwera */
 .top-accordion { border: 1px solid var(--line); border-radius: var(--card-radius, 14px); overflow: hidden; }
