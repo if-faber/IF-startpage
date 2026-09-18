@@ -8,3 +8,6 @@ Thumbs.db
 Dockerfile
 compose.yaml
 *.md
+
+# Dane uruchomieniowe - nigdy nie pakowac do obrazu, tworzone/montowane w CONFIG_DIR
+www-helper/config/

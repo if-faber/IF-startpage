@@ -1,7 +1,0 @@
-{
-  "title": "Homelab NAS",
-  "subtitle": "Domowa chmura",
-  "apiUrl": "",
-  "defaultHost": "192.168.50.127",
-  "logo": "./images/dashboard-logo.png?v=1784491814074"
-}

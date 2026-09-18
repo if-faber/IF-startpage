@@ -6,3 +6,4 @@ Thumbs.db
 # Sekrety — nigdy nie commitować prawdziwych plikow .env (tylko przykladowe *.env.example)
 *.env
 !*.env.example
+www-helper/config/
