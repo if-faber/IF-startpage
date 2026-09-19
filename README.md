@@ -132,15 +132,9 @@ pakietu: `IF-MyHome` buduje się na nim (multi-stage Docker build,
 Homedocs). Poprawka w kodzie bazowym trafia do obu produktów przy
 najbliższym buildzie `IF-MyHome`.
 
-## Dokumentacja
+## Dokumentacja i pytania
 
-Ten README to na razie **jedyna i pełna** dokumentacja projektu. Docelowo
-szczegółowa dokumentacja (instrukcje krok po kroku, zrzuty ekranu, opisy
-poszczególnych modułów) ma powstać na [ideaforge.pl](https://ideaforge.pl) —
-strona istnieje, ale nie ma tam jeszcze treści dotyczącej `IF-startpage`.
-Ten README zostanie zaktualizowany o link do konkretnej podstrony dopiero
-wtedy, gdy ta treść tam faktycznie powstanie.
-
+Pełna dokumentacja (krok po kroku, ze zdjęciami) jest w przygotowaniu. Projekt wciąż się rozwija, a nowe pomysły i rozwiązania nieco opóźniają jej wydanie. Coś jest niejasne albo nie działa? Zapytaj lub zgłoś błąd w [Issues](https://github.com/if-faber/IF-startpage/issues).
 ## Licencja
 
 MIT — zobacz [LICENSE](./LICENSE).
